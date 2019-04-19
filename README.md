@@ -1,0 +1,1 @@
+# Attentions module on CIFAR100 for ResNet34 and ResNet50
