@@ -62,7 +62,6 @@ def trainval(model, save_dir, cfg):
     
     cretirion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(model.parameters(), lr=cfg['TRAIN']['LR'], momentum=0.9, weight_decay=cfg['TRAIN']['WEIGHT_DECAY'])
-    # optimizer = optim.Adam(model.parameters(), lr=cfg['TRAIN']['LR'], weight_decay=cfg['TRAIN']['WEIGHT_DECAY'])
     lrScheduler = optim.lr_scheduler.MultiStepLR(optimizer, cfg['TRAIN']['DECAY_EPOCH'], gamma=cfg['TRAIN']['LR_DECAY_GAMMA'])
     logdir = os.path.join(cfg['LOG_DIR'], save_dir.split('/')[-1])
     summaryWriter = SummaryWriter(logdir)
@@ -90,9 +89,6 @@ def trainval(model, save_dir, cfg):
             summaryWriter.add_scalar('valid/top1', top1_acc, epoch+1)
             summaryWriter.add_scalar('valid/top5', top5_acc, epoch+1)
         
-        # if (epoch+1) in cfg['TRAIN']['DECAY_EPOCH']:
-        #     BATCH_SIZE = BATCH_SIZE * 2
-        #     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=20)
         if epoch % cfg['SAVE_STEP'] == (cfg['SAVE_STEP'] - 1):
             save_dict = {'epoch': epoch,
                          'state_dict': model.state_dict()}
