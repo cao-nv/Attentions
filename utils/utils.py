@@ -1,4 +1,6 @@
 import numpy as np
+from easydict import EasyDict as edict
+import yaml
 
 
 def count_top1_top5(labels, preds):
@@ -12,3 +14,10 @@ def count_top1_top5(labels, preds):
         if labels[n] in argsort[-5::]:
             top5 += 1
     return top1, top5
+
+
+def config_from_file(cfg_file):
+    with open(cfg_file, 'r') as fp:
+        cfg = yaml.safe_load(fp)
+    cfg = edict(cfg)
+    return cfg

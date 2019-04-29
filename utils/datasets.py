@@ -2,8 +2,31 @@ import numpy as np
 import os
 import cPickle
 from torch.utils.data import Dataset
-from data_augmentation import augment_data
+from torchvision.transforms import transforms
 import ipdb
+RGB_MEAN = (0.4914, 0.4822, 0.4465)
+RGB_STD = (0.2023, 0.1994, 0.2010)
+
+Augmentation = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.RandomCrop(32, padding=4),
+    transforms.RandomHorizontalFlip(0.5),
+    transforms.ToTensor(),
+    transforms.Normalize(RGB_MEAN, RGB_STD)
+])
+Normalization = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.ToTensor(),
+    transforms.Normalize(RGB_MEAN, RGB_STD)])
+
+
+def augment_data(images, augment=True):
+    if augment:
+        augmented_images = Augmentation(images)
+        return augmented_images
+    else:
+        normalized_images = Normalization(images)
+        return normalized_images
 
 
 def unpicke(file):
@@ -33,32 +56,21 @@ class CIFAR100(Dataset):
         labels = np.concatenate(labels)
         return images, labels
 
-    # @staticmethod
-    # def create_loader(data_dir, is_test=False):
-    #     images, labels = CIFAR10.load_data(data_dir, is_test)
-    #     dataset = Dataset.from_tensor_slices((images, labels))
-    #     return dataset
+    @staticmethod
+    def load_meta(data_dir):
+        meta = unpicke(os.path.join(data_dir, 'meta'))
+        return meta['coarse_label_names'], meta['fine_label_names']
         
     def __init__(self, data_dir, is_test=False, augmentation=True):
         super(CIFAR100, self).__init__()
         
         self.data_dir = data_dir
-        # self._channels_last = channels_last
         self._is_test = is_test
         self.augmentation = augmentation
         
-        # if self._is_test:
-        #     data_files = CIFAR100.train_files
-        # else:
-        #     data_files = CIFAR100.test_files
-            
-        # paths = [os.path.join(self.data_dir, f) for f in data_files]
-        
         self.images, self.labels = CIFAR100.load_data(self.data_dir, self._is_test)
-
-        # if not self._channels_last:
-        #     self.images = self.images.transpose((0, 3, 1, 2))
-            
+        self.coarse_label_names, self.fine_label_names = CIFAR100.load_meta(self.data_dir)
+        
     def __getitem__(self, index):
         image = self.images[index]
         image = augment_data(image, self.augmentation)

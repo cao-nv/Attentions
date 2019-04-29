@@ -115,8 +115,6 @@ class ResNet(nn.Module):
         self.inplanes = 64
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=3,
                                bias=False)
-        # self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1,
-        #                        bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         # self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -143,7 +141,10 @@ class ResNet(nn.Module):
                     nn.init.constant_(m.bn3.weight, 0)
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
-
+                    
+        self.gradients = None
+        self.activations = None
+        
     def _make_layer(self, block, planes, blocks, stride=1, attention=None):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
@@ -155,10 +156,15 @@ class ResNet(nn.Module):
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample, attention_dict=attention))
         self.inplanes = planes * block.expansion
+        if attention is not None and attention['type'].name.startswith('BAM'):
+            attention = None
         for _ in range(1, blocks):
             layers.append(block(self.inplanes, planes, attention_dict=attention))
 
         return nn.Sequential(*layers)
+
+    def activations_hook(self, grad):
+        self.gradients = grad
 
     def forward(self, x):
         x = self.conv1(x)
@@ -169,14 +175,27 @@ class ResNet(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-
+        h = x.register_hook(self.activations_hook)
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
 
         return x
 
+    def get_activations_gradient(self):
+        return self.gradients
+    
+    def get_activations(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        return x
 
+    
 def resnet18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
 
