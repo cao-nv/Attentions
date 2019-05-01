@@ -154,12 +154,19 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, downsample, attention_dict=attention))
-        self.inplanes = planes * block.expansion
         if attention is not None and attention['type'].name.startswith('BAM'):
-            attention = None
-        for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes, attention_dict=attention))
+            layers.append(block(self.inplanes, planes, stride, downsample, attention_dict=None))
+        else:
+            layers.append(block(self.inplanes, planes, stride, downsample, attention_dict=attention))
+        self.inplanes = planes * block.expansion
+        for b in range(1, blocks):
+            if attention is not None and attention['type'].name.startswith('BAM'):
+                if b == blocks-1:
+                    layers.append(block(self.inplanes, planes, attention_dict=attention))
+                else:
+                    layers.append(block(self.inplanes, planes, attention_dict=None))
+            else:
+                layers.append(block(self.inplanes, planes, attention_dict=attention))
 
         return nn.Sequential(*layers)
 

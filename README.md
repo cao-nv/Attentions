@@ -1,6 +1,6 @@
-# Attentions module on CIFAR100 for ResNet34 and ResNet50
-Cao Nguyen-Van
-`nguyenvancao@kaist.ac.kr`
+# Attentions module: SE, BAM and CBAM on CIFAR100 for ResNet34 and ResNet50
+Cao Nguyen-Van\
+`nguyenvancao@kaist.ac.kr`\
 20184172
 
 # Requirements:
@@ -20,8 +20,10 @@ Attentions
 |_______models: Folder for networks and modules
 |       |      attention_resnet.py: ResNet with additional arguments for attention modules
 |       |      attention_modules.py: attention modules
+|       |      resnet.py: Original ResNet implementation from Torchvision
+|       |      models.py: wrapper to create models 
 |_______configs: Folder for configuration
-|       |      config.yaml: configuration for training and testing network
+|       |      config.yaml: configurations for training and testing network
 |_______datasets: CIFAR100 dataset
 |_______checkpoint: Default folder for logs and saved models
         
