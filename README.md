@@ -15,21 +15,20 @@ Attentions
 |       main.py: File to train the models
 |       grad_cam.py File for generating Grad-CAM images 
 |_______utils: Folder for dataset and other functions 
-|       |      datasets.py: Datasets
-|       |      utils.py: Other utils
+|       |______datasets.py: Datasets
+|       |______utils.py: Other utils
 |_______models: Folder for networks and modules
-|       |      attention_resnet.py: ResNet with additional arguments for attention modules
-|       |      attention_modules.py: attention modules
-|       |      resnet.py: Original ResNet implementation from Torchvision
-|       |      models.py: wrapper to create models 
+|       |______attention_resnet.py: ResNet with additional arguments for attention modules
+|       |______attention_modules.py: attention modules
+|       |______resnet.py: Original ResNet implementation from Torchvision
+|       |______models.py: wrapper to create models 
 |_______configs: Folder for configuration
-|       |      config.yaml: configurations for training and testing network
-|_______datasets: CIFAR100 dataset
-|_______checkpoint: Default folder for logs and saved models
+|_______|______config.yaml: configurations for training and testing network
         
 ```
 
 # To run train the model:
+In order to train the model, the dataset directory should be placed to `DATA_DIR` in the `config.yaml` file. Please point to the lowest level directory, and keep every file same as downloaded from CIFAR100 website. In case you changed file name, please go to `utils/dataset.py` and change the name of data files. The default directory for logging and saving models are `checkpoint/logs` and `checkpoint/<baseline>_<attention_type>`. These paths can be changed to any where by changing value of `LOG_DIR` and `CHECKPOINT` in `config.yaml`. Such directories will be automatically created if they don't  existed. 
 ```
 python main.py --arch resnet50 --attention CBAM
 ```
